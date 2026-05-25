@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>595 — Personal Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #111111;
+  --bg3: #1a1a1a;
+  --bg4: #222222;
+  --border: #2a2a2a;
+  --border2: #333333;
+  --text: #f0f0f0;
+  --text2: #888888;
+  --text3: #555555;
+  --accent: #c8ff00;
+  --accent2: #00d4ff;
+  --accent3: #ff6b35;
+  --accent4: #b06bff;
+  --danger: #ff4444;
+  --success: #00cc66;
+  --warn: #ffaa00;
+  --r: 8px;
+  --r2: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+/* LOGIN */
+#login-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.login-box {
+  width: 340px; text-align: center;
+  border: 1px solid var(--border2); border-radius: 16px;
+  padding: 48px 40px; background: var(--bg2);
+}
+.login-box .logo { font-family: 'Syne', sans-serif; font-size: 64px; font-weight: 800; color: var(--accent); letter-spacing: -4px; margin-bottom: 8px; }
+.login-box .sub { color: var(--text2); font-size: 13px; margin-bottom: 32px; }
+.login-box input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); border-radius: var(--r); padding: 12px 16px;
+  font-family: 'DM Mono', monospace; font-size: 14px; margin-bottom: 12px; outline: none;
+}
+.login-box input:focus { border-color: var(--accent); }
+.login-box button {
+  width: 100%; background: var(--accent); color: #000; border: none;
+  border-radius: var(--r); padding: 12px; font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 14px; cursor: pointer; letter-spacing: 1px;
+}
+.login-box .err { color: var(--danger); font-size: 12px; margin-top: 8px; min-height: 16px; }
+
+/* MAIN APP */
+#app { display: none; }
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0; padding: 0 24px;
+  height: 56px;
+}
+.topbar .brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--accent); letter-spacing: -1px; margin-right: 32px; }
+.topbar nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
+.topbar nav button {
+  background: none; border: none; color: var(--text2); font-family: 'DM Sans', sans-serif;
+  font-size: 13px; padding: 6px 14px; border-radius: 6px; cursor: pointer; white-space: nowrap;
+  transition: all 0.15s;
+}
+.topbar nav button:hover { background: var(--bg3); color: var(--text); }
+.topbar nav button.active { background: var(--bg3); color: var(--accent); }
+.topbar .top-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.topbar .clock-mini { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text2); }
+#notif-badge { background: var(--danger); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; display: none; }
+.topbar .logout-btn { background: none; border: 1px solid var(--border2); color: var(--text2); font-size: 12px; padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+.topbar .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+.page { display: none; padding: 28px 24px; max-width: 1200px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* NOTIFICATIONS PANEL */
+#notif-panel {
+  position: fixed; top: 56px; right: 24px; width: 320px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r2);
+  padding: 16px; z-index: 200; display: none; max-height: 400px; overflow-y: auto;
+}
+.notif-item { padding: 10px 12px; border-radius: var(--r); margin-bottom: 8px; font-size: 13px; }
+.notif-item.danger { background: rgba(255,68,68,0.12); border: 1px solid rgba(255,68,68,0.3); }
+.notif-item.warn { background: rgba(255,170,0,0.12); border: 1px solid rgba(255,170,0,0.3); }
+.notif-item .ni-title { font-weight: 500; margin-bottom: 2px; }
+.notif-item .ni-sub { color: var(--text2); font-size: 11px; }
+
+/* SHARED UTILS */
+h2.page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); padding: 20px; margin-bottom: 16px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+input, select, textarea {
+  background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+  border-radius: var(--r); padding: 10px 14px; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; width: 100%; outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent2); }
+select option { background: var(--bg3); }
+.btn { padding: 10px 18px; border-radius: var(--r); border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.btn-accent { background: var(--accent); color: #000; }
+.btn-accent:hover { opacity: 0.85; }
+.btn-outline { background: none; border: 1px solid var(--border2); color: var(--text2); }
+.btn-outline:hover { border-color: var(--text2); color: var(--text); }
+.btn-danger { background: rgba(255,68,68,0.15); border: 1px solid rgba(255,68,68,0.3); color: var(--danger); }
+.btn-danger:hover { background: rgba(255,68,68,0.25); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.stat-box { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; }
+.stat-box .s-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.stat-box .s-val { font-family: 'DM Mono', monospace; font-size: 22px; font-weight: 500; }
+.tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 4px; margin: 2px; }
+.tag-green { background: rgba(0,204,102,0.15); color: var(--success); border: 1px solid rgba(0,204,102,0.3); }
+.tag-red { background: rgba(255,68,68,0.15); color: var(--danger); border: 1px solid rgba(255,68,68,0.3); }
+.tag-blue { background: rgba(0,212,255,0.15); color: var(--accent2); border: 1px solid rgba(0,212,255,0.3); }
+.tag-yellow { background: rgba(200,255,0,0.15); color: var(--accent); border: 1px solid rgba(200,255,0,0.3); }
+.tag-purple { background: rgba(176,107,255,0.15); color: var(--accent4); border: 1px solid rgba(176,107,255,0.3); }
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.row { display: flex; gap: 12px; align-items: center; }
+.row-between { display: flex; justify-content: space-between; align-items: center; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.list-item { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 8px; }
+.mono { font-family: 'DM Mono', monospace; }
+.accent-text { color: var(--accent); }
+.muted { color: var(--text2); font-size: 13px; }
+.empty-state { text-align: center; padding: 48px; color: var(--text3); font-size: 14px; }
+progress { width: 100%; height: 6px; border-radius: 3px; appearance: none; background: var(--bg4); }
+progress::-webkit-progress-bar { background: var(--bg4); border-radius: 3px; }
+progress::-webkit-progress-value { background: var(--accent); border-radius: 3px; }
+
+/* BUDGET */
+.currency-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.currency-tab { background: var(--bg3); border: 1px solid var(--border2); color: var(--text2); padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.currency-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.spending-bar { height: 8px; background: var(--bg4); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.spending-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.cat-icon { font-size: 18px; margin-right: 8px; }
+
+/* TIMER */
+.timer-display { font-family: 'DM Mono', monospace; font-size: 56px; font-weight: 500; text-align: center; padding: 32px; color: var(--accent); letter-spacing: -2px; }
+.timer-controls { display: flex; justify-content: center; gap: 12px; }
+.active-project { background: rgba(200,255,0,0.08); border: 1px solid rgba(200,255,0,0.3); border-radius: var(--r); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+
+/* HABIT TRACKER */
+.habit-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.habit-days { display: flex; gap: 6px; }
+.habit-day { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: var(--bg3); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text3); transition: all 0.15s; }
+.habit-day.done { background: var(--accent); border-color: var(--accent); color: #000; font-size: 12px; }
+.habit-day.missed { background: rgba(255,68,68,0.15); border-color: rgba(255,68,68,0.3); }
+
+/* MOOD */
+.mood-btn { font-size: 28px; padding: 10px; border-radius: var(--r); border: 1px solid var(--border2); background: var(--bg3); cursor: pointer; transition: all 0.15s; }
+.mood-btn:hover, .mood-btn.selected { background: var(--bg4); border-color: var(--accent2); transform: scale(1.15); }
+
+/* TODO */
+.todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.todo-check { width: 18px; height: 18px; min-width: 18px; border-radius: 4px; border: 1px solid var(--border2); background: var(--bg3); cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.todo-check.done { background: var(--success); border-color: var(--success); }
+.todo-item.done .todo-text { text-decoration: line-through; color: var(--text3); }
+.priority-dot { width: 8px; height: 8px; min-width: 8px; border-radius: 50%; margin-top: 5px; }
+.p-high { background: var(--danger); }
+.p-med { background: var(--warn); }
+.p-low { background: var(--success); }
+
+/* POMODORO */
+.pomo-ring { width: 160px; height: 160px; border-radius: 50%; border: 6px solid var(--border2); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; }
+.pomo-ring svg { position: absolute; top: -3px; left: -3px; transform: rotate(-90deg); }
+.pomo-time { font-family: 'DM Mono', monospace; font-size: 32px; font-weight: 500; color: var(--accent4); }
+
+/* UPLOAD */
+.upload-zone { border: 2px dashed var(--border2); border-radius: var(--r2); padding: 40px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.upload-zone:hover { border-color: var(--accent2); background: rgba(0,212,255,0.05); }
+.file-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg3); border-radius: var(--r); margin-bottom: 8px; border: 1px solid var(--border); }
+
+/* SLEEP/WATER */
+.water-drop { font-size: 24px; cursor: pointer; transition: all 0.15s; filter: grayscale(1) opacity(0.3); }
+.water-drop.filled { filter: none; }
+
+/* ROUTINE */
+.routine-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.routine-time-badge { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--bg3); border: 1px solid var(--border2); padding: 3px 8px; border-radius: 4px; color: var(--accent2); white-space: nowrap; }
+.routine-check { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border2); background: var(--bg3); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; }
+.routine-check.done { background: var(--success); border-color: var(--success); color: #000; }
+
+@media (max-width: 700px) {
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+  .topbar nav { gap: 0; }
+  .topbar nav button { padding: 6px 10px; font-size: 12px; }
+  .timer-display { font-size: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo">595</div>
+    <div class="sub">personal command center</div>
+    <input type="text" id="login-user" placeholder="username" autocomplete="off" />
+    <input type="password" id="login-pass" placeholder="password" />
+    <button onclick="doLogin()">ENTER</button>
+    <div class="err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div id="notif-panel">
+  <div class="row-between" style="margin-bottom:12px">
+    <span style="font-family:'Syne',sans-serif;font-size:14px;font-weight:600">Alerts</span>
+    <button class="btn btn-sm btn-outline" onclick="document.getElementById('notif-panel').style.display='none'">✕</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="topbar">
+    <span class="brand">595</span>
+    <nav>
+      <button class="active" onclick="showPage('overview')">Overview</button>
+      <button onclick="showPage('budget')">💰 Budget</button>
+      <button onclick="showPage('todos')">✅ To-Do</button>
+      <button onclick="showPage('routine')">🌅 Routine</button>
+      <button onclick="showPage('timer')">⏱ Timer</button>
+      <button onclick="showPage('habits')">🔥 Habits</button>
+      <button onclick="showPage('projects')">📁 Projects</button>
+      <button onclick="showPage('wellness')">💧 Wellness</button>
+      <button onclick="showPage('pomodoro')">🍅 Focus</button>
+      <button onclick="showPage('journal')">📓 Journal</button>
+    </nav>
+    <div class="top-right">
+      <span class="clock-mini" id="top-clock">--:--:--</span>
+      <span id="notif-badge" onclick="toggleNotifPanel()" style="cursor:pointer">!</span>
+      <button class="logout-btn" onclick="doLogout()">logout</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+  <div class="page active" id="page-overview">
+    <h2 class="page-title">Good <span id="greeting-time">morning</span>, Omar 👋</h2>
+    <div id="date-display" class="muted" style="margin-top:-16px;margin-bottom:24px"></div>
+
+    <div class="grid4" id="overview-stats"></div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Today's To-Do</div>
+        <div id="ov-todos"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Active Timer</div>
+        <div id="ov-timer"></div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:0">
+      <div class="card">
+        <div class="card-title">Budget Snapshot</div>
+        <div id="ov-budget"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">This Week's Habits</div>
+        <div id="ov-habits"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ BUDGET ═══════════════════ -->
+  <div class="page" id="page-budget">
+    <h2 class="page-title">💰 Budget Tracker</h2>
+    <div class="currency-tabs">
+      <button class="currency-tab active" onclick="setCurrency('AED')">🇦🇪 AED</button>
+      <button class="currency-tab" onclick="setCurrency('AZN')">🇦🇿 AZN</button>
+      <button class="currency-tab" onclick="setCurrency('USD')">🇺🇸 USD</button>
+      <button class="currency-tab" onclick="setCurrency('EUR')">🇪🇺 EUR</button>
+    </div>
+    <div class="grid4" id="budget-stats"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card">
+        <div class="card-title">Add Transaction</div>
+        <div class="form-group"><label>Description</label><input id="b-desc" placeholder="e.g. Noon food order" /></div>
+        <div class="form-group"><label>Amount (<span id="b-curr-label">AED</span>)</label><input id="b-amount" type="number" placeholder="0.00" /></div>
+        <div class="row" style="gap:8px;margin-bottom:12px">
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Category</label>
+          <select id="b-cat">
+            <option>🍔 Food</option><option>🚗 Transport</option><option>🛍 Shopping</option>
+            <option>💊 Health</option><option>🎮 Entertainment</option><option>🏠 Housing</option>
+            <option>📚 Education</option><option>💼 Business</option><option>💰 Savings</option><option>⚡ Utilities</option><option>🔧 Other</option>
+          </select></div>
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Type</label>
+          <select id="b-type"><option value="expense">Expense</option><option value="income">Income</option></select></div>
+        </div>
+        <div class="form-group"><label>Date</label><input id="b-date" type="date" /></div>
+        <div class="form-group"><label>Notes (optional)</label><input id="b-notes" placeholder="Extra info..." /></div>
+        <button class="btn btn-accent" style="width:100%" onclick="addTransaction()">Add Transaction</button>
+        <hr class="divider">
+        <div class="card-title">Set Budget Goals</div>
+        <div class="row" style="gap:8px;margin-bottom:8px">
+          <input id="bg-total" type="number" placeholder="Total budget" style="flex:1" />
+          <input id="bg-save" type="number" placeholder="Savings goal" style="flex:1" />
+        </div>
+        <button class="btn btn-outline" style="width:100%" onclick="saveBudgetGoals()">Save Goals</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Transactions</div>
+        <div style="margin-bottom:12px"><input id="b-search" placeholder="Search transactions..." oninput="renderTransactions()" /></div>
+        <div id="transactions-list"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0">
+      <div class="card-title">Spending by Category</div>
+      <div id="cat-breakdown"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TODOS ═══════════════════ -->
+  <div class="page" id="page-todos">
+    <h2 class="page-title">✅ To-Do & Deadlines</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Add Task</div>
+        <div class="form-group"><label>Task</label><input id="td-title" placeholder="What needs to be done?" /></div>
+        <div class="row" style="gap:8px;margin-bottom:12px">
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Priority</label>
+          <select id="td-priority"><option value="high">🔴 High</option><option value="med" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div>
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Category</label>
+          <select id="td-cat"><option>Work</option><option>Study</option><option>Personal</option><option>Business</option><option>Health</option><option>Other</option></select></div>
+        </div>
+        <div class="form-group"><label>Deadline (date + time)</label><input id="td-deadline" type="datetime-local" /></div>
+        <div class="form-group"><label>Notes</label><textarea id="td-notes" rows="2" placeholder="Extra details..."></textarea></div>
+        <button class="btn btn-accent" style="width:100%" onclick="addTodo()">Add Task</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Filters</div>
+        <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:16px">
+          <button class="btn btn-sm btn-outline" onclick="setTodoFilter('all')">All</button>
+          <button class="btn btn-sm btn-outline" onclick="setTodoFilter('active')">Active</button>
+          <button class="btn btn-sm btn-outline" onclick="setTodoFilter('done')">Done</button>
+          <button class="btn btn-sm btn-outline" onclick="setTodoFilter('high')">🔴 High</button>
+          <button class="btn btn-sm btn-outline" onclick="setTodoFilter('overdue')">⚠ Overdue</button>
+        </div>
+        <div id="todo-stats" style="margin-bottom:16px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="todos-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ ROUTINE ═══════════════════ -->
+  <div class="page" id="page-routine">
+    <h2 class="page-title">🌅 Daily Routine</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Add Routine Item</div>
+        <div class="form-group"><label>Activity</label><input id="rt-title" placeholder="e.g. Morning workout" /></div>
+        <div class="row" style="gap:8px;margin-bottom:12px">
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Time</label><input id="rt-time" type="time" /></div>
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Duration</label><input id="rt-dur" placeholder="e.g. 30 min" /></div>
+        </div>
+        <div class="form-group"><label>Category</label>
+        <select id="rt-cat"><option>🌞 Morning</option><option>💪 Exercise</option><option>🍽 Meals</option><option>📚 Study</option><option>💼 Work</option><option>🌙 Evening</option><option>😴 Sleep</option><option>🧘 Mindfulness</option></select></div>
+        <div class="form-group"><label>Days</label>
+        <div class="row" style="flex-wrap:wrap;gap:6px">
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Mon" checked> Mon</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Tue" checked> Tue</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Wed" checked> Wed</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Thu" checked> Thu</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Fri" checked> Fri</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Sat"> Sat</label>
+          <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" class="rt-day" value="Sun"> Sun</label>
+        </div></div>
+        <button class="btn btn-accent" style="width:100%;margin-top:8px" onclick="addRoutine()">Add to Routine</button>
+      </div>
+      <div class="card">
+        <div class="row-between" style="margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">Today's Schedule</div>
+          <button class="btn btn-sm btn-outline" onclick="resetRoutineDay()">Reset Today</button>
+        </div>
+        <div id="routine-progress" style="margin-bottom:12px"></div>
+        <div id="routine-list"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Full Routine</div>
+      <div id="full-routine-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TIMER ═══════════════════ -->
+  <div class="page" id="page-timer">
+    <h2 class="page-title">⏱ Project Timer</h2>
+    <div class="grid2">
+      <div class="card">
+        <div id="active-timer-info"></div>
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-controls">
+          <button class="btn btn-accent" onclick="startTimer()" id="btn-start">▶ Start</button>
+          <button class="btn btn-outline" onclick="pauseTimer()" id="btn-pause" disabled>⏸ Pause</button>
+          <button class="btn btn-danger" onclick="stopTimer()" id="btn-stop" disabled>⏹ Stop</button>
+        </div>
+        <hr class="divider">
+        <div class="form-group"><label>Project Name</label><input id="timer-proj" placeholder="What are you working on?" /></div>
+        <div class="form-group"><label>Session Notes</label><textarea id="timer-notes" rows="2" placeholder="Notes for this session..."></textarea></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Project Time Log</div>
+        <div id="timer-log"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Project Totals</div>
+      <div id="project-totals"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ HABITS ═══════════════════ -->
+  <div class="page" id="page-habits">
+    <h2 class="page-title">🔥 Habit Tracker</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Add Habit</div>
+        <div class="form-group"><label>Habit Name</label><input id="hab-name" placeholder="e.g. 30 min reading" /></div>
+        <div class="form-group"><label>Icon (emoji)</label><input id="hab-icon" placeholder="📖" maxlength="2" /></div>
+        <div class="form-group"><label>Target (days/week)</label><input id="hab-target" type="number" value="7" min="1" max="7" /></div>
+        <button class="btn btn-accent" style="width:100%" onclick="addHabit()">Add Habit</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Weekly Overview</div>
+        <div id="habit-week-header" class="row" style="gap:6px;margin-bottom:12px;justify-content:flex-end;padding-right:4px"></div>
+        <div id="habits-list"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Streaks & Stats</div>
+      <div id="habit-stats"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ PROJECTS ═══════════════════ -->
+  <div class="page" id="page-projects">
+    <h2 class="page-title">📁 Projects & Files</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Add Project</div>
+        <div class="form-group"><label>Project Name</label><input id="prj-name" placeholder="e.g. CSIT128 Lab 3" /></div>
+        <div class="form-group"><label>Description</label><textarea id="prj-desc" rows="2" placeholder="What is this project about?"></textarea></div>
+        <div class="row" style="gap:8px;margin-bottom:12px">
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Status</label>
+          <select id="prj-status"><option>Active</option><option>Paused</option><option>Done</option><option>Idea</option></select></div>
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Deadline</label><input id="prj-deadline" type="date" /></div>
+        </div>
+        <button class="btn btn-accent" style="width:100%" onclick="addProject()">Add Project</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Upload File</div>
+        <div class="upload-zone" onclick="document.getElementById('file-upload').click()" id="upload-zone">
+          <div style="font-size:32px;margin-bottom:8px">📤</div>
+          <div style="color:var(--text2);font-size:14px">Click to upload any file</div>
+          <div style="color:var(--text3);font-size:12px;margin-top:4px">Stored locally in your browser</div>
+        </div>
+        <input type="file" id="file-upload" style="display:none" multiple onchange="uploadFiles(this.files)" />
+        <div class="form-group" style="margin-top:12px"><label>Attach to Project</label>
+        <select id="file-proj-link"><option value="">— No project —</option></select></div>
+        <div id="files-list" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">All Projects</div>
+      <div id="projects-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ WELLNESS ═══════════════════ -->
+  <div class="page" id="page-wellness">
+    <h2 class="page-title">💧 Wellness Tracker</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">💧 Water Intake</div>
+        <div style="text-align:center;margin-bottom:12px">
+          <div id="water-drops" style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:16px"></div>
+          <div id="water-count" class="mono" style="font-size:24px;color:var(--accent2)">0 / 8 glasses</div>
+          <div class="muted" style="font-size:12px;margin-top:4px">Goal: 8 glasses per day</div>
+        </div>
+        <div class="row" style="justify-content:center;gap:12px">
+          <button class="btn btn-outline" onclick="changeWater(-1)">− Remove</button>
+          <button class="btn btn-accent" onclick="changeWater(1)">+ Add Glass</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">😴 Sleep Log</div>
+        <div class="form-group"><label>Bedtime</label><input id="sleep-bed" type="time" /></div>
+        <div class="form-group"><label>Wake time</label><input id="sleep-wake" type="time" /></div>
+        <div class="form-group"><label>Sleep quality</label>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="setSleepQ(1)">😣 Bad</button>
+          <button class="btn btn-sm btn-outline" onclick="setSleepQ(2)">😐 Ok</button>
+          <button class="btn btn-sm btn-outline" onclick="setSleepQ(3)">🙂 Good</button>
+          <button class="btn btn-sm btn-outline" onclick="setSleepQ(4)">😴 Great</button>
+        </div></div>
+        <button class="btn btn-accent" style="width:100%" onclick="logSleep()">Log Sleep</button>
+        <div id="sleep-log" style="margin-top:16px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">😊 Mood Log</div>
+      <div class="row-between" style="margin-bottom:16px">
+        <div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px">How are you feeling today?</div>
+          <div class="row" style="gap:10px;flex-wrap:wrap">
+            <button class="mood-btn" onclick="setMood('😄','Great')">😄</button>
+            <button class="mood-btn" onclick="setMood('🙂','Good')">🙂</button>
+            <button class="mood-btn" onclick="setMood('😐','Neutral')">😐</button>
+            <button class="mood-btn" onclick="setMood('😔','Low')">😔</button>
+            <button class="mood-btn" onclick="setMood('😤','Stressed')">😤</button>
+            <button class="mood-btn" onclick="setMood('😴','Tired')">😴</button>
+            <button class="mood-btn" onclick="setMood('🤩','Pumped')">🤩</button>
+          </div>
+        </div>
+        <div id="mood-today" style="text-align:center;min-width:80px">
+          <div style="font-size:40px" id="mood-emoji">—</div>
+          <div class="muted" id="mood-label" style="font-size:12px">Not logged</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Mood note (optional)</label><textarea id="mood-note" rows="2" placeholder="What's affecting your mood today?"></textarea></div>
+      <button class="btn btn-accent" onclick="logMood()">Log Mood</button>
+      <hr class="divider">
+      <div class="card-title">Mood History</div>
+      <div id="mood-history"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ POMODORO ═══════════════════ -->
+  <div class="page" id="page-pomodoro">
+    <h2 class="page-title">🍅 Focus Mode (Pomodoro)</h2>
+    <div class="grid2">
+      <div class="card" style="text-align:center">
+        <div class="card-title" id="pomo-phase-label">Work Session</div>
+        <div class="pomo-ring">
+          <svg width="166" height="166" id="pomo-svg">
+            <circle cx="83" cy="83" r="77" fill="none" stroke="var(--accent4)" stroke-width="6" stroke-dasharray="483.8" stroke-dashoffset="0" id="pomo-circle" style="transition:stroke-dashoffset 1s linear"/>
+          </svg>
+          <div class="pomo-time" id="pomo-display">25:00</div>
+        </div>
+        <div class="row" style="justify-content:center;gap:12px;margin-bottom:20px">
+          <button class="btn btn-accent" id="pomo-start-btn" onclick="togglePomo()">▶ Start</button>
+          <button class="btn btn-outline" onclick="resetPomo()">↺ Reset</button>
+        </div>
+        <div class="row" style="justify-content:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" onclick="setPomoMode('work',25)">25 min Work</button>
+          <button class="btn btn-sm btn-outline" onclick="setPomoMode('short',5)">5 min Break</button>
+          <button class="btn btn-sm btn-outline" onclick="setPomoMode('long',15)">15 min Break</button>
+        </div>
+        <div id="pomo-session-count" class="muted">Sessions today: 0</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Focus Task</div>
+        <div class="form-group"><label>What are you working on?</label><input id="pomo-task" placeholder="e.g. CSIT128 assignment" /></div>
+        <div id="pomo-log">
+          <div class="card-title" style="margin-top:16px">Session Log</div>
+          <div id="pomo-sessions-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ JOURNAL ═══════════════════ -->
+  <div class="page" id="page-journal">
+    <h2 class="page-title">📓 Daily Journal</h2>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">New Entry</div>
+        <div class="form-group"><label>Date</label><input id="jnl-date" type="date" /></div>
+        <div class="form-group"><label>Title</label><input id="jnl-title" placeholder="Entry title..." /></div>
+        <div class="form-group"><label>Entry</label><textarea id="jnl-body" rows="8" placeholder="Write your thoughts, notes, wins, or anything on your mind..."></textarea></div>
+        <div class="row" style="gap:8px">
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Mood</label>
+          <select id="jnl-mood"><option>😄 Great</option><option>🙂 Good</option><option>😐 Neutral</option><option>😔 Low</option><option>😤 Stressed</option></select></div>
+          <div style="flex:1"><label class="muted" style="font-size:12px;display:block;margin-bottom:6px">Tag</label>
+          <select id="jnl-tag"><option>General</option><option>Work</option><option>Study</option><option>Personal</option><option>Business</option><option>Health</option></select></div>
+        </div>
+        <button class="btn btn-accent" style="width:100%;margin-top:12px" onclick="saveJournalEntry()">Save Entry</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Journal History</div>
+        <div style="margin-bottom:12px"><input id="jnl-search" placeholder="Search entries..." oninput="renderJournal()" /></div>
+        <div id="journal-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════════════
+const KEY = '595dash_';
+function save(k, v) { try { localStorage.setItem(KEY+k, JSON.stringify(v)); } catch(e) {} }
+function load(k, def) { try { const v = localStorage.getItem(KEY+k); return v ? JSON.parse(v) : def; } catch(e) { return def; } }
+
+let state = {
+  currency: 'AED',
+  transactions: load('transactions', []),
+  budgetGoals: load('budgetGoals', { total: 0, savings: 0 }),
+  todos: load('todos', []),
+  todoFilter: 'all',
+  routine: load('routine', []),
+  routineDone: load('routineDone', {}),
+  timerState: load('timerState', { running: false, elapsed: 0, project: '', startedAt: null }),
+  timerLog: load('timerLog', []),
+  habits: load('habits', []),
+  habitLog: load('habitLog', {}),
+  projects: load('projects', []),
+  files: load('files', []),
+  water: load('water', {}),
+  sleepLog: load('sleepLog', []),
+  sleepQ: 3,
+  moodLog: load('moodLog', []),
+  moodToday: null,
+  pomoState: { running: false, mode: 'work', remaining: 25*60, sessions: 0 },
+  pomoSessions: load('pomoSessions', []),
+  journal: load('journal', []),
+};
+
+// Exchange rates (AED base, approx May 2026)
+const RATES = { AED: 1, AZN: 0.4625, USD: 0.2722, EUR: 0.25 };
+// 1 AED = 0.4625 AZN, 0.2722 USD, 0.25 EUR
+
+function toBase(amount, cur) { return amount / RATES[cur]; } // to AED
+function fromBase(amount, cur) { return amount * RATES[cur]; } // from AED
+function fmt(amount, cur) {
+  cur = cur || state.currency;
+  const val = fromBase(toBase(amount, 'AED') , cur); // already base is AED
+  return cur + ' ' + val.toFixed(2);
+}
+function fmtCur(aedAmount, cur) {
+  cur = cur || state.currency;
+  return cur + ' ' + (aedAmount * RATES[cur]).toFixed(2);
+}
+
+// ═══════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value.trim();
+  if (u === '595' && p === '595') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    save('loggedIn', true);
+    initApp();
+  } else {
+    document.getElementById('login-err').textContent = 'Wrong credentials. Try again.';
+    setTimeout(()=>document.getElementById('login-err').textContent='', 2000);
+  }
+}
+function doLogout() {
+  save('loggedIn', false);
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+document.getElementById('login-user').addEventListener('keydown', e => e.key==='Enter' && document.getElementById('login-pass').focus());
+document.getElementById('login-pass').addEventListener('keydown', e => e.key==='Enter' && doLogin());
+
+// Check if already logged in (view-only link support)
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('view') === '595' || load('loggedIn', false)) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  initApp();
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.topbar nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const btns = document.querySelectorAll('.topbar nav button');
+  btns.forEach(b => { if(b.textContent.toLowerCase().includes(id.substring(0,4))) b.classList.add('active'); });
+  if(id==='overview') { btns[0].classList.add('active'); renderOverview(); }
+  if(id==='budget') renderTransactions();
+  if(id==='todos') renderTodos();
+  if(id==='routine') renderRoutine();
+  if(id==='timer') renderTimerLog();
+  if(id==='habits') renderHabits();
+  if(id==='projects') renderProjects();
+  if(id==='wellness') renderWellness();
+  if(id==='pomodoro') renderPomoSessions();
+  if(id==='journal') renderJournal();
+  history.replaceState(null,'','#'+id);
+}
+
+// ═══════════════════════════════════════════════════
+// CLOCK & DATE
+// ═══════════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('top-clock').textContent = h+':'+m+':'+s;
+  const hr = now.getHours();
+  const greet = hr<12?'morning':hr<17?'afternoon':hr<21?'evening':'night';
+  const gel = document.getElementById('greeting-time');
+  if(gel) gel.textContent = greet;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dd = document.getElementById('date-display');
+  if(dd) dd.textContent = days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+function checkNotifications() {
+  const notifs = [];
+  const now = new Date();
+  state.todos.filter(t=>!t.done&&t.deadline).forEach(t => {
+    const dl = new Date(t.deadline);
+    const diff = (dl-now)/(1000*60*60);
+    if(diff < 0) notifs.push({type:'danger', title:'OVERDUE: '+t.title, sub: 'Was due '+dl.toLocaleString()});
+    else if(diff < 24) notifs.push({type:'warn', title:'Due soon: '+t.title, sub: 'Due in '+Math.round(diff)+'h — '+dl.toLocaleString()});
+  });
+  state.projects.filter(p=>p.status!=='Done'&&p.deadline).forEach(p => {
+    const dl = new Date(p.deadline);
+    const diff = (dl-now)/(1000*60*60*24);
+    if(diff < 0) notifs.push({type:'danger', title:'Project overdue: '+p.name, sub: 'Deadline was '+p.deadline});
+    else if(diff < 3) notifs.push({type:'warn', title:'Project deadline near: '+p.name, sub: 'Due in '+Math.round(diff)+' days'});
+  });
+  const badge = document.getElementById('notif-badge');
+  const list = document.getElementById('notif-list');
+  badge.style.display = notifs.length ? 'inline-block' : 'none';
+  badge.textContent = notifs.length;
+  list.innerHTML = notifs.length ? notifs.map(n=>`
+    <div class="notif-item ${n.type}">
+      <div class="ni-title">${n.title}</div>
+      <div class="ni-sub">${n.sub}</div>
+    </div>`).join('') : '<div class="muted" style="text-align:center;padding:20px">No alerts 🎉</div>';
+}
+function toggleNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  checkNotifications();
+}
+setInterval(checkNotifications, 60000);
+
+// ═══════════════════════════════════════════════════
+// BUDGET
+// ═══════════════════════════════════════════════════
+function setCurrency(c) {
+  state.currency = c;
+  document.querySelectorAll('.currency-tab').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const lbl = document.getElementById('b-curr-label');
+  if(lbl) lbl.textContent = c;
+  renderBudgetStats();
+  renderTransactions();
+  renderCatBreakdown();
+}
+function addTransaction() {
+  const desc = document.getElementById('b-desc').value.trim();
+  const amount = parseFloat(document.getElementById('b-amount').value);
+  if(!desc || isNaN(amount) || amount<=0) return alert('Fill in description and amount');
+  const cur = state.currency;
+  const aed = toBase(amount, cur) * RATES.AED; // convert input to AED for storage
+  // Actually: user enters in selected currency, store as AED
+  const aedAmount = amount / RATES[cur];
+  state.transactions.push({
+    id: Date.now(), desc, amount: aedAmount, // stored in AED
+    cat: document.getElementById('b-cat').value,
+    type: document.getElementById('b-type').value,
+    date: document.getElementById('b-date').value || new Date().toISOString().split('T')[0],
+    notes: document.getElementById('b-notes').value,
+    currency: cur
+  });
+  save('transactions', state.transactions);
+  document.getElementById('b-desc').value='';
+  document.getElementById('b-amount').value='';
+  document.getElementById('b-notes').value='';
+  renderBudgetStats(); renderTransactions(); renderCatBreakdown();
+}
+function saveBudgetGoals() {
+  const total = parseFloat(document.getElementById('bg-total').value)||0;
+  const savings = parseFloat(document.getElementById('bg-save').value)||0;
+  // Store in AED
+  state.budgetGoals = { total: total/RATES[state.currency], savings: savings/RATES[state.currency] };
+  save('budgetGoals', state.budgetGoals);
+  renderBudgetStats();
+  alert('Goals saved!');
+}
+function deleteTransaction(id) {
+  state.transactions = state.transactions.filter(t=>t.id!==id);
+  save('transactions', state.transactions);
+  renderBudgetStats(); renderTransactions(); renderCatBreakdown();
+}
+function renderBudgetStats() {
+  const cur = state.currency;
+  const expenses = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const income = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const balance = income - expenses;
+  const goalTotal = state.budgetGoals.total;
+  const el = document.getElementById('budget-stats');
+  if(!el) return;
+  el.innerHTML = `
+    <div class="stat-box"><div class="s-label">Total Income</div><div class="s-val" style="color:var(--success)">${fmtCur(income,cur)}</div></div>
+    <div class="stat-box"><div class="s-label">Total Spent</div><div class="s-val" style="color:var(--danger)">${fmtCur(expenses,cur)}</div></div>
+    <div class="stat-box"><div class="s-label">Balance</div><div class="s-val" style="color:${balance>=0?'var(--success)':'var(--danger)'}">${fmtCur(balance,cur)}</div></div>
+    <div class="stat-box"><div class="s-label">Budget Left</div><div class="s-val">${goalTotal>0?fmtCur(Math.max(0,goalTotal-expenses),cur):'—'}</div></div>
+  `;
+}
+function renderTransactions() {
+  const el = document.getElementById('transactions-list');
+  if(!el) return;
+  const q = (document.getElementById('b-search')||{}).value||'';
+  let txs = [...state.transactions].sort((a,b)=>b.id-a.id);
+  if(q) txs = txs.filter(t=>t.desc.toLowerCase().includes(q.toLowerCase())||t.cat.toLowerCase().includes(q.toLowerCase()));
+  if(!txs.length) { el.innerHTML='<div class="empty-state">No transactions yet</div>'; return; }
+  el.innerHTML = txs.slice(0,50).map(t=>`
+    <div class="list-item" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.cat} ${t.desc}</div>
+        <div class="muted" style="font-size:11px">${t.date}${t.notes?' · '+t.notes:''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="mono" style="font-size:13px;color:${t.type==='income'?'var(--success)':'var(--danger)'}">
+          ${t.type==='income'?'+':'−'}${fmtCur(t.amount,state.currency)}
+        </div>
+        <button class="btn btn-sm btn-danger" style="margin-top:4px;padding:2px 8px;font-size:11px" onclick="deleteTransaction(${t.id})">del</button>
+      </div>
+    </div>`).join('');
+}
+function renderCatBreakdown() {
+  const el = document.getElementById('cat-breakdown');
+  if(!el) return;
+  const cur = state.currency;
+  const expenses = state.transactions.filter(t=>t.type==='expense');
+  const total = expenses.reduce((s,t)=>s+t.amount,0);
+  const cats = {};
+  expenses.forEach(t=>{ cats[t.cat]=(cats[t.cat]||0)+t.amount; });
+  const colors = ['var(--accent)','var(--accent2)','var(--accent3)','var(--accent4)','var(--success)','var(--warn)','#ff9999','#99ff99','#9999ff','#ffcc99','#cc99ff'];
+  const sorted = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length) { el.innerHTML='<div class="empty-state">No expenses yet</div>'; return; }
+  el.innerHTML = sorted.map(([cat,amt],i)=>`
+    <div style="margin-bottom:12px">
+      <div class="row-between" style="margin-bottom:4px">
+        <span style="font-size:13px">${cat}</span>
+        <span class="mono" style="font-size:13px">${fmtCur(amt,cur)} <span class="muted">(${total>0?((amt/total)*100).toFixed(1):0}%)</span></span>
+      </div>
+      <div class="spending-bar"><div class="spending-bar-fill" style="width:${total>0?(amt/total)*100:0}%;background:${colors[i%colors.length]}"></div></div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// TODOS
+// ═══════════════════════════════════════════════════
+let todoFilter = 'all';
+function addTodo() {
+  const title = document.getElementById('td-title').value.trim();
+  if(!title) return alert('Enter a task title');
+  state.todos.push({
+    id: Date.now(), title,
+    priority: document.getElementById('td-priority').value,
+    cat: document.getElementById('td-cat').value,
+    deadline: document.getElementById('td-deadline').value,
+    notes: document.getElementById('td-notes').value,
+    done: false, createdAt: new Date().toISOString()
+  });
+  save('todos', state.todos);
+  document.getElementById('td-title').value='';
+  document.getElementById('td-notes').value='';
+  renderTodos(); checkNotifications();
+}
+function toggleTodo(id) {
+  const t = state.todos.find(t=>t.id===id);
+  if(t) { t.done=!t.done; t.doneAt=t.done?new Date().toISOString():null; }
+  save('todos', state.todos);
+  renderTodos(); renderOverview();
+}
+function deleteTodo(id) {
+  state.todos = state.todos.filter(t=>t.id!==id);
+  save('todos', state.todos);
+  renderTodos(); renderOverview();
+}
+function setTodoFilter(f) { todoFilter=f; renderTodos(); }
+function renderTodos() {
+  const now = new Date();
+  let todos = [...state.todos];
+  if(todoFilter==='active') todos=todos.filter(t=>!t.done);
+  else if(todoFilter==='done') todos=todos.filter(t=>t.done);
+  else if(todoFilter==='high') todos=todos.filter(t=>t.priority==='high'&&!t.done);
+  else if(todoFilter==='overdue') todos=todos.filter(t=>!t.done&&t.deadline&&new Date(t.deadline)<now);
+  todos.sort((a,b)=>{
+    if(a.done!==b.done) return a.done?1:-1;
+    const po={high:0,med:1,low:2};
+    return (po[a.priority]||1)-(po[b.priority]||1);
+  });
+  const stats = document.getElementById('todo-stats');
+  const active = state.todos.filter(t=>!t.done).length;
+  const done = state.todos.filter(t=>t.done).length;
+  const overdue = state.todos.filter(t=>!t.done&&t.deadline&&new Date(t.deadline)<now).length;
+  if(stats) stats.innerHTML=`
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <span class="tag tag-blue">${active} active</span>
+      <span class="tag tag-green">${done} done</span>
+      ${overdue?`<span class="tag tag-red">${overdue} overdue</span>`:''}
+    </div>`;
+  const el = document.getElementById('todos-list');
+  if(!el) return;
+  if(!todos.length) { el.innerHTML='<div class="empty-state">No tasks here 🎉</div>'; return; }
+  el.innerHTML = todos.map(t=>{
+    const overdue = t.deadline && !t.done && new Date(t.deadline)<now;
+    const daysLeft = t.deadline ? Math.round((new Date(t.deadline)-now)/(1000*60*60*24)) : null;
+    return `<div class="todo-item ${t.done?'done':''}">
+      <div class="priority-dot p-${t.priority}"></div>
+      <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+      <div style="flex:1;min-width:0">
+        <div class="todo-text" style="font-size:14px;font-weight:500">${t.title}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+          <span class="tag tag-blue" style="font-size:10px">${t.cat}</span>
+          ${t.deadline?`<span class="tag ${overdue?'tag-red':daysLeft<=1?'tag-yellow':'tag-purple'}" style="font-size:10px">
+            ${overdue?'OVERDUE':daysLeft===0?'Today':daysLeft===1?'Tomorrow':'In '+daysLeft+'d'} — ${new Date(t.deadline).toLocaleString()}
+          </span>`:''}
+          ${t.notes?`<span class="muted" style="font-size:11px">${t.notes}</span>`:''}
+        </div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="deleteTodo(${t.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ROUTINE
+// ═══════════════════════════════════════════════════
+function addRoutine() {
+  const title = document.getElementById('rt-title').value.trim();
+  if(!title) return alert('Enter activity name');
+  const days = [...document.querySelectorAll('.rt-day:checked')].map(c=>c.value);
+  state.routine.push({
+    id: Date.now(), title,
+    time: document.getElementById('rt-time').value,
+    duration: document.getElementById('rt-dur').value,
+    cat: document.getElementById('rt-cat').value,
+    days
+  });
+  save('routine', state.routine);
+  document.getElementById('rt-title').value='';
+  renderRoutine();
+}
+function deleteRoutine(id) {
+  state.routine = state.routine.filter(r=>r.id!==id);
+  save('routine', state.routine);
+  renderRoutine();
+}
+function toggleRoutineDone(id) {
+  const today = new Date().toISOString().split('T')[0];
+  const key = today+'_'+id;
+  state.routineDone[key] = !state.routineDone[key];
+  save('routineDone', state.routineDone);
+  renderRoutine();
+}
+function resetRoutineDay() {
+  const today = new Date().toISOString().split('T')[0];
+  Object.keys(state.routineDone).filter(k=>k.startsWith(today)).forEach(k=>delete state.routineDone[k]);
+  save('routineDone', state.routineDone);
+  renderRoutine();
+}
+function renderRoutine() {
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const shortDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date();
+  const todayShort = shortDays[today.getDay()];
+  const dateKey = today.toISOString().split('T')[0];
+  const todayRoutine = state.routine.filter(r=>r.days.includes(todayShort)).sort((a,b)=>a.time>b.time?1:-1);
+  const done = todayRoutine.filter(r=>state.routineDone[dateKey+'_'+r.id]).length;
+  const prog = document.getElementById('routine-progress');
+  if(prog) {
+    prog.innerHTML = `
+      <div class="row-between" style="margin-bottom:6px">
+        <span class="muted" style="font-size:12px">Today's progress</span>
+        <span class="mono" style="font-size:13px;color:var(--accent)">${done}/${todayRoutine.length}</span>
+      </div>
+      <progress value="${done}" max="${Math.max(todayRoutine.length,1)}"></progress>`;
+  }
+  const rl = document.getElementById('routine-list');
+  if(rl) {
+    rl.innerHTML = todayRoutine.length ? todayRoutine.map(r=>{
+      const isDone = state.routineDone[dateKey+'_'+r.id];
+      return `<div class="routine-item" style="${isDone?'opacity:0.5':''}">
+        <div class="routine-check ${isDone?'done':''}" onclick="toggleRoutineDone(${r.id})">${isDone?'✓':''}</div>
+        <span class="routine-time-badge">${r.time||'--:--'}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500">${r.cat} ${r.title}</div>
+          ${r.duration?`<div class="muted" style="font-size:11px">${r.duration}</div>`:''}
+        </div>
+      </div>`;
+    }).join('') : '<div class="empty-state">Nothing scheduled for today</div>';
+  }
+  const frl = document.getElementById('full-routine-list');
+  if(frl) {
+    frl.innerHTML = state.routine.length ? state.routine.sort((a,b)=>a.time>b.time?1:-1).map(r=>`
+      <div class="list-item row-between">
+        <div>
+          <span style="font-size:13px;font-weight:500">${r.cat} ${r.title}</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px">
+            ${r.time?`<span class="tag tag-blue" style="font-size:10px">${r.time}</span>`:''}
+            ${r.duration?`<span class="tag tag-purple" style="font-size:10px">${r.duration}</span>`:''}
+            ${r.days.map(d=>`<span class="tag tag-yellow" style="font-size:10px">${d}</span>`).join('')}
+          </div>
+        </div>
+        <button class="btn btn-sm btn-danger" onclick="deleteRoutine(${r.id})">✕</button>
+      </div>`).join('') : '<div class="empty-state">No routine items yet</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════
+let timerInterval = null;
+
+function getElapsed() {
+  if(!state.timerState.running) return state.timerState.elapsed;
+  return state.timerState.elapsed + Math.floor((Date.now()-state.timerState.startedAt)/1000);
+}
+function fmtTime(s) {
+  const h = Math.floor(s/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function updateTimerDisplay() {
+  const el = document.getElementById('timer-display');
+  if(el) el.textContent = fmtTime(getElapsed());
+}
+function startTimer() {
+  const proj = document.getElementById('timer-proj').value.trim();
+  if(!proj) return alert('Enter a project name first');
+  if(state.timerState.running) return;
+  state.timerState.running = true;
+  state.timerState.startedAt = Date.now();
+  state.timerState.project = proj;
+  save('timerState', state.timerState);
+  timerInterval = setInterval(()=>{ updateTimerDisplay(); }, 1000);
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('btn-pause').disabled=false;
+  document.getElementById('btn-stop').disabled=false;
+  renderActiveTimer();
+}
+function pauseTimer() {
+  if(!state.timerState.running) return;
+  state.timerState.elapsed = getElapsed();
+  state.timerState.running = false;
+  state.timerState.startedAt = null;
+  save('timerState', state.timerState);
+  clearInterval(timerInterval);
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-pause').disabled=true;
+}
+function stopTimer() {
+  const elapsed = getElapsed();
+  if(elapsed < 5) return alert('Session too short');
+  const notes = document.getElementById('timer-notes').value;
+  state.timerLog.push({
+    id: Date.now(),
+    project: state.timerState.project,
+    elapsed,
+    notes,
+    date: new Date().toISOString().split('T')[0],
+    endedAt: new Date().toISOString()
+  });
+  save('timerLog', state.timerLog);
+  state.timerState = { running: false, elapsed: 0, project: '', startedAt: null };
+  save('timerState', state.timerState);
+  clearInterval(timerInterval);
+  updateTimerDisplay();
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-pause').disabled=true;
+  document.getElementById('btn-stop').disabled=true;
+  document.getElementById('timer-proj').value='';
+  document.getElementById('timer-notes').value='';
+  renderTimerLog(); renderActiveTimer();
+}
+function renderActiveTimer() {
+  const el = document.getElementById('active-timer-info');
+  if(!el) return;
+  const ov = document.getElementById('ov-timer');
+  if(state.timerState.running || state.timerState.elapsed > 0) {
+    const html = `<div class="active-project">
+      <div>
+        <div style="font-size:13px;font-weight:500">${state.timerState.project||'No project'}</div>
+        <div class="muted" style="font-size:11px">${state.timerState.running?'⏺ Running':'⏸ Paused'}</div>
+      </div>
+      <div class="mono" style="font-size:18px;color:var(--accent)">${fmtTime(getElapsed())}</div>
+    </div>`;
+    if(el) el.innerHTML=html;
+    if(ov) ov.innerHTML=html+'<div class="muted" style="font-size:12px;margin-top:8px">Go to Timer tab to control</div>';
+  } else {
+    if(el) el.innerHTML='';
+    if(ov) ov.innerHTML='<div class="empty-state">No active timer</div>';
+  }
+}
+function renderTimerLog() {
+  const el = document.getElementById('timer-log');
+  if(!el) return;
+  const logs = [...state.timerLog].sort((a,b)=>b.id-a.id);
+  if(!logs.length) { el.innerHTML='<div class="empty-state">No sessions logged yet</div>'; return; }
+  el.innerHTML = logs.slice(0,20).map(l=>`
+    <div class="list-item row-between">
+      <div>
+        <div style="font-size:13px;font-weight:500">${l.project}</div>
+        <div class="muted" style="font-size:11px">${l.date}${l.notes?' · '+l.notes:''}</div>
+      </div>
+      <div class="row" style="gap:8px;align-items:center">
+        <span class="mono accent-text">${fmtTime(l.elapsed)}</span>
+        <button class="btn btn-sm btn-danger" onclick="deleteTimerLog(${l.id})">✕</button>
+      </div>
+    </div>`).join('');
+  // Totals
+  const totals = document.getElementById('project-totals');
+  if(totals) {
+    const map = {};
+    state.timerLog.forEach(l=>{ map[l.project]=(map[l.project]||0)+l.elapsed; });
+    const sorted = Object.entries(map).sort((a,b)=>b[1]-a[1]);
+    totals.innerHTML = sorted.map(([proj,sec])=>`
+      <div class="row-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:13px">${proj}</span>
+        <span class="mono accent-text">${fmtTime(sec)}</span>
+      </div>`).join('') || '<div class="empty-state">No data</div>';
+  }
+}
+function deleteTimerLog(id) {
+  state.timerLog = state.timerLog.filter(l=>l.id!==id);
+  save('timerLog', state.timerLog);
+  renderTimerLog();
+}
+
+// Restore timer on load
+function restoreTimer() {
+  const ts = state.timerState;
+  if(ts.running || ts.elapsed > 0) {
+    const proj = document.getElementById('timer-proj');
+    if(proj && ts.project) proj.value = ts.project;
+    if(ts.running) {
+      timerInterval = setInterval(()=>{ updateTimerDisplay(); }, 1000);
+      document.getElementById('btn-start').disabled=true;
+      document.getElementById('btn-pause').disabled=false;
+      document.getElementById('btn-stop').disabled=false;
+    } else if(ts.elapsed > 0) {
+      document.getElementById('btn-stop').disabled=false;
+    }
+    updateTimerDisplay();
+    renderActiveTimer();
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// HABITS
+// ═══════════════════════════════════════════════════
+function addHabit() {
+  const name = document.getElementById('hab-name').value.trim();
+  if(!name) return alert('Enter habit name');
+  state.habits.push({
+    id: Date.now(), name,
+    icon: document.getElementById('hab-icon').value || '✅',
+    target: parseInt(document.getElementById('hab-target').value)||7
+  });
+  save('habits', state.habits);
+  document.getElementById('hab-name').value='';
+  document.getElementById('hab-icon').value='';
+  renderHabits();
+}
+function deleteHabit(id) {
+  state.habits = state.habits.filter(h=>h.id!==id);
+  save('habits', state.habits);
+  renderHabits();
+}
+function toggleHabitDay(hid, dateStr) {
+  const k = hid+'_'+dateStr;
+  state.habitLog[k] = !state.habitLog[k];
+  save('habitLog', state.habitLog);
+  renderHabits();
+}
+function renderHabits() {
+  const header = document.getElementById('habit-week-header');
+  const el = document.getElementById('habits-list');
+  const statsEl = document.getElementById('habit-stats');
+  if(!el) return;
+  const days = [];
+  const today = new Date();
+  for(let i=6;i>=0;i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate()-i);
+    days.push({ date: d.toISOString().split('T')[0], label: ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()] });
+  }
+  if(header) header.innerHTML = days.map(d=>`<div style="width:28px;text-align:center;font-size:10px;color:var(--text3)">${d.label}</div>`).join('');
+  if(!state.habits.length) { el.innerHTML='<div class="empty-state">No habits yet. Add one!</div>'; return; }
+  el.innerHTML = state.habits.map(h=>`
+    <div class="habit-row">
+      <div style="font-size:18px;min-width:24px">${h.icon}</div>
+      <div style="flex:1;font-size:13px;font-weight:500">${h.name}</div>
+      <div class="habit-days">${days.map(d=>{
+        const done = state.habitLog[h.id+'_'+d.date];
+        return `<div class="habit-day ${done?'done':''}" onclick="toggleHabitDay(${h.id},'${d.date}')" title="${d.date}">${done?'✓':''}</div>`;
+      }).join('')}</div>
+      <button class="btn btn-sm btn-danger" style="margin-left:8px" onclick="deleteHabit(${h.id})">✕</button>
+    </div>`).join('');
+  if(statsEl) {
+    statsEl.innerHTML = state.habits.map(h=>{
+      let streak=0; const d=new Date();
+      while(true) { const k=h.id+'_'+d.toISOString().split('T')[0]; if(state.habitLog[k]){streak++;d.setDate(d.getDate()-1);}else break; }
+      const weekDone=days.filter(d=>state.habitLog[h.id+'_'+d.date]).length;
+      return `<div class="row-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <span>${h.icon} ${h.name}</span>
+        <div class="row" style="gap:8px">
+          <span class="tag tag-yellow">${streak} day streak 🔥</span>
+          <span class="tag tag-blue">${weekDone}/7 this week</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// PROJECTS & FILES
+// ═══════════════════════════════════════════════════
+function addProject() {
+  const name = document.getElementById('prj-name').value.trim();
+  if(!name) return alert('Enter project name');
+  state.projects.push({
+    id: Date.now(), name,
+    desc: document.getElementById('prj-desc').value,
+    status: document.getElementById('prj-status').value,
+    deadline: document.getElementById('prj-deadline').value,
+    createdAt: new Date().toISOString()
+  });
+  save('projects', state.projects);
+  document.getElementById('prj-name').value='';
+  document.getElementById('prj-desc').value='';
+  renderProjects();
+  checkNotifications();
+}
+function updateProjectStatus(id, status) {
+  const p = state.projects.find(p=>p.id===id);
+  if(p) p.status=status;
+  save('projects', state.projects);
+  renderProjects();
+}
+function deleteProject(id) {
+  state.projects = state.projects.filter(p=>p.id!==id);
+  save('projects', state.projects);
+  renderProjects();
+}
+function uploadFiles(files) {
+  Array.from(files).forEach(file=>{
+    if(file.size > 4*1024*1024) { alert(file.name+' is too large (max 4MB)'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const projLink = document.getElementById('file-proj-link').value;
+      state.files.push({
+        id: Date.now()+Math.random(), name: file.name, size: file.size,
+        type: file.type, data: e.target.result, projectId: projLink,
+        uploadedAt: new Date().toISOString()
+      });
+      save('files', state.files);
+      renderFiles();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function downloadFile(id) {
+  const f = state.files.find(f=>f.id===id);
+  if(!f) return;
+  const a = document.createElement('a');
+  a.href = f.data; a.download = f.name; a.click();
+}
+function deleteFile(id) {
+  state.files = state.files.filter(f=>f.id!==id);
+  save('files', state.files);
+  renderFiles();
+}
+function renderProjects() {
+  const el = document.getElementById('projects-list');
+  const sel = document.getElementById('file-proj-link');
+  if(sel) {
+    sel.innerHTML='<option value="">— No project —</option>'+state.projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  }
+  if(!el) return;
+  if(!state.projects.length) { el.innerHTML='<div class="empty-state">No projects yet</div>'; return; }
+  const statColors = {Active:'tag-green',Paused:'tag-yellow',Done:'tag-blue',Idea:'tag-purple'};
+  el.innerHTML = state.projects.map(p=>{
+    const files = state.files.filter(f=>f.projectId==p.id);
+    const timeSpent = state.timerLog.filter(l=>l.project===p.name).reduce((s,l)=>s+l.elapsed,0);
+    return `<div class="list-item">
+      <div class="row-between">
+        <div>
+          <span style="font-size:14px;font-weight:500">${p.name}</span>
+          <span class="tag ${statColors[p.status]||'tag-blue'}" style="margin-left:8px">${p.status}</span>
+        </div>
+        <div class="row" style="gap:6px">
+          <select class="btn btn-sm btn-outline" style="font-size:12px;padding:4px 8px;width:auto" onchange="updateProjectStatus(${p.id},this.value)">
+            <option ${p.status==='Active'?'selected':''}>Active</option>
+            <option ${p.status==='Paused'?'selected':''}>Paused</option>
+            <option ${p.status==='Done'?'selected':''}>Done</option>
+          </select>
+          <button class="btn btn-sm btn-danger" onclick="deleteProject(${p.id})">✕</button>
+        </div>
+      </div>
+      ${p.desc?`<div class="muted" style="font-size:12px;margin-top:6px">${p.desc}</div>`:''}
+      <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+        ${p.deadline?`<span class="tag tag-yellow" style="font-size:10px">📅 ${p.deadline}</span>`:''}
+        ${timeSpent?`<span class="tag tag-purple" style="font-size:10px">⏱ ${fmtTime(timeSpent)}</span>`:''}
+        ${files.length?`<span class="tag tag-blue" style="font-size:10px">📎 ${files.length} file${files.length>1?'s':''}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  renderFiles();
+}
+function renderFiles() {
+  const el = document.getElementById('files-list');
+  if(!el) return;
+  if(!state.files.length) { el.innerHTML=''; return; }
+  const fmtSize = s => s>1024*1024?(s/1024/1024).toFixed(1)+'MB':s>1024?(s/1024).toFixed(0)+'KB':s+'B';
+  el.innerHTML = state.files.map(f=>`
+    <div class="file-item">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div>
+        <div class="muted" style="font-size:10px">${fmtSize(f.size)} · ${f.uploadedAt.split('T')[0]}</div>
+      </div>
+      <div class="row" style="gap:4px">
+        <button class="btn btn-sm btn-outline" onclick="downloadFile(${f.id})" style="font-size:11px">↓</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteFile(${f.id})" style="font-size:11px">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// WELLNESS
+// ═══════════════════════════════════════════════════
+function renderWellness() {
+  const today = new Date().toISOString().split('T')[0];
+  const water = state.water[today] || 0;
+  const drops = document.getElementById('water-drops');
+  const count = document.getElementById('water-count');
+  if(drops) drops.innerHTML = Array.from({length:8},(_,i)=>`<span class="water-drop ${i<water?'filled':''}" onclick="setWater(${i+1})">💧</span>`).join('');
+  if(count) count.textContent = water + ' / 8 glasses';
+  renderSleepLog();
+  renderMoodHistory();
+  // Today's mood
+  const todayMood = [...state.moodLog].reverse().find(m=>m.date===today);
+  if(todayMood) {
+    const me = document.getElementById('mood-emoji');
+    const ml = document.getElementById('mood-label');
+    if(me) me.textContent = todayMood.emoji;
+    if(ml) ml.textContent = todayMood.label;
+  }
+}
+function changeWater(delta) {
+  const today = new Date().toISOString().split('T')[0];
+  state.water[today] = Math.max(0, Math.min(20, (state.water[today]||0)+delta));
+  save('water', state.water);
+  renderWellness();
+}
+function setWater(n) {
+  const today = new Date().toISOString().split('T')[0];
+  state.water[today] = n;
+  save('water', state.water);
+  renderWellness();
+}
+let tempSleepQ = 3;
+function setSleepQ(q) {
+  tempSleepQ = q;
+  document.querySelectorAll('#page-wellness .btn-sm').forEach(b=>b.classList.remove('btn-accent'));
+  event.target.classList.add('btn-accent');
+}
+function logSleep() {
+  const bed = document.getElementById('sleep-bed').value;
+  const wake = document.getElementById('sleep-wake').value;
+  if(!bed||!wake) return alert('Enter bedtime and wake time');
+  const bedM = parseInt(bed.split(':')[0])*60+parseInt(bed.split(':')[1]);
+  let wakeM = parseInt(wake.split(':')[0])*60+parseInt(wake.split(':')[1]);
+  if(wakeM<bedM) wakeM+=24*60;
+  const dur = wakeM-bedM;
+  state.sleepLog.push({ id:Date.now(), bed, wake, duration: dur, quality: tempSleepQ, date: new Date().toISOString().split('T')[0] });
+  save('sleepLog', state.sleepLog);
+  renderSleepLog();
+}
+function renderSleepLog() {
+  const el = document.getElementById('sleep-log');
+  if(!el) return;
+  const logs = [...state.sleepLog].sort((a,b)=>b.id-a.id).slice(0,7);
+  if(!logs.length) { el.innerHTML='<div class="muted" style="font-size:12px;text-align:center;padding:16px">No sleep logs yet</div>'; return; }
+  const qEmoji = ['','😣','😐','🙂','😴'];
+  el.innerHTML = logs.map(l=>`
+    <div class="row-between" style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span>${l.date}</span>
+      <span class="muted">${l.bed} → ${l.wake}</span>
+      <span class="mono">${Math.floor(l.duration/60)}h${l.duration%60}m</span>
+      <span>${qEmoji[l.quality]}</span>
+    </div>`).join('');
+}
+function setMood(emoji, label) {
+  document.getElementById('mood-emoji').textContent = emoji;
+  document.getElementById('mood-label').textContent = label;
+  state.moodToday = { emoji, label };
+}
+function logMood() {
+  if(!state.moodToday) return alert('Select a mood first');
+  const note = document.getElementById('mood-note').value;
+  state.moodLog.push({
+    id: Date.now(), ...state.moodToday, note,
+    date: new Date().toISOString().split('T')[0],
+    time: new Date().toLocaleTimeString()
+  });
+  save('moodLog', state.moodLog);
+  document.getElementById('mood-note').value='';
+  renderMoodHistory();
+  renderOverview();
+}
+function renderMoodHistory() {
+  const el = document.getElementById('mood-history');
+  if(!el) return;
+  const logs = [...state.moodLog].sort((a,b)=>b.id-a.id).slice(0,14);
+  if(!logs.length) { el.innerHTML='<div class="empty-state">No mood entries yet</div>'; return; }
+  el.innerHTML = logs.map(l=>`
+    <div class="row-between" style="padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="row" style="gap:10px">
+        <span style="font-size:20px">${l.emoji}</span>
+        <div><div style="font-size:13px;font-weight:500">${l.label}</div>${l.note?`<div class="muted" style="font-size:11px">${l.note}</div>`:''}</div>
+      </div>
+      <span class="muted" style="font-size:11px">${l.date}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// POMODORO
+// ═══════════════════════════════════════════════════
+let pomoInterval = null;
+let pomoMode = 'work';
+let pomoRemaining = 25*60;
+let pomoRunning = false;
+let pomoSessions = 0;
+
+function setPomoMode(mode, mins) {
+  resetPomo();
+  pomoMode = mode;
+  pomoRemaining = mins*60;
+  const labels = {work:'Work Session', short:'Short Break', long:'Long Break'};
+  document.getElementById('pomo-phase-label').textContent = labels[mode];
+  updatePomoDisplay();
+}
+function updatePomoDisplay() {
+  const m = Math.floor(pomoRemaining/60);
+  const s = pomoRemaining%60;
+  document.getElementById('pomo-display').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const total = pomoMode==='work'?25*60:pomoMode==='short'?5*60:15*60;
+  const progress = (total-pomoRemaining)/total;
+  const circ = 2*Math.PI*77;
+  document.getElementById('pomo-circle').style.strokeDashoffset = circ*(1-progress);
+}
+function togglePomo() {
+  if(pomoRunning) {
+    clearInterval(pomoInterval);
+    pomoRunning=false;
+    document.getElementById('pomo-start-btn').textContent='▶ Start';
+  } else {
+    pomoRunning=true;
+    document.getElementById('pomo-start-btn').textContent='⏸ Pause';
+    pomoInterval = setInterval(()=>{
+      if(pomoRemaining>0){ pomoRemaining--; updatePomoDisplay(); }
+      else {
+        clearInterval(pomoInterval); pomoRunning=false;
+        document.getElementById('pomo-start-btn').textContent='▶ Start';
+        if(pomoMode==='work') {
+          pomoSessions++;
+          const task = document.getElementById('pomo-task').value;
+          state.pomoSessions.push({ id:Date.now(), task, date:new Date().toISOString().split('T')[0], mins:25 });
+          save('pomoSessions', state.pomoSessions);
+          renderPomoSessions();
+          document.getElementById('pomo-session-count').textContent = 'Sessions today: '+state.pomoSessions.filter(s=>s.date===new Date().toISOString().split('T')[0]).length;
+        }
+        const msg = pomoMode==='work'?'🍅 Work session done! Take a break.':'☕ Break over! Back to work.';
+        alert(msg);
+        if(pomoMode==='work') setPomoMode('short',5); else setPomoMode('work',25);
+      }
+    }, 1000);
+  }
+}
+function resetPomo() {
+  clearInterval(pomoInterval);
+  pomoRunning=false;
+  const total = pomoMode==='work'?25:pomoMode==='short'?5:15;
+  pomoRemaining=total*60;
+  document.getElementById('pomo-start-btn').textContent='▶ Start';
+  updatePomoDisplay();
+}
+function renderPomoSessions() {
+  const el = document.getElementById('pomo-sessions-list');
+  if(!el) return;
+  const today = new Date().toISOString().split('T')[0];
+  const todaySessions = state.pomoSessions.filter(s=>s.date===today);
+  if(document.getElementById('pomo-session-count'))
+    document.getElementById('pomo-session-count').textContent='Sessions today: '+todaySessions.length;
+  if(!state.pomoSessions.length) { el.innerHTML='<div class="empty-state">No sessions yet</div>'; return; }
+  el.innerHTML = [...state.pomoSessions].reverse().slice(0,10).map(s=>`
+    <div class="row-between" style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+      <span>🍅 ${s.task||'Focus session'}</span>
+      <span class="muted">${s.date} · ${s.mins} min</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// JOURNAL
+// ═══════════════════════════════════════════════════
+function saveJournalEntry() {
+  const title = document.getElementById('jnl-title').value.trim();
+  const body = document.getElementById('jnl-body').value.trim();
+  if(!title||!body) return alert('Enter title and content');
+  const today = document.getElementById('jnl-date').value || new Date().toISOString().split('T')[0];
+  state.journal.push({
+    id: Date.now(), title, body,
+    mood: document.getElementById('jnl-mood').value,
+    tag: document.getElementById('jnl-tag').value,
+    date: today
+  });
+  save('journal', state.journal);
+  document.getElementById('jnl-title').value='';
+  document.getElementById('jnl-body').value='';
+  renderJournal();
+}
+function deleteJournal(id) {
+  state.journal = state.journal.filter(j=>j.id!==id);
+  save('journal', state.journal);
+  renderJournal();
+}
+function renderJournal() {
+  const el = document.getElementById('journal-list');
+  if(!el) return;
+  const q = (document.getElementById('jnl-search')||{}).value||'';
+  let entries = [...state.journal].sort((a,b)=>b.id-a.id);
+  if(q) entries = entries.filter(e=>e.title.toLowerCase().includes(q.toLowerCase())||e.body.toLowerCase().includes(q.toLowerCase()));
+  if(!entries.length) { el.innerHTML='<div class="empty-state">No journal entries yet</div>'; return; }
+  el.innerHTML = entries.slice(0,30).map(e=>`
+    <div class="list-item">
+      <div class="row-between" style="margin-bottom:6px">
+        <div>
+          <span style="font-size:14px;font-weight:500">${e.title}</span>
+          <span class="muted" style="font-size:11px;margin-left:8px">${e.date}</span>
+        </div>
+        <div class="row" style="gap:6px">
+          <span class="tag tag-purple" style="font-size:10px">${e.mood}</span>
+          <span class="tag tag-blue" style="font-size:10px">${e.tag}</span>
+          <button class="btn btn-sm btn-danger" onclick="deleteJournal(${e.id})" style="font-size:11px">✕</button>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;white-space:pre-wrap;max-height:80px;overflow:hidden;text-overflow:ellipsis">${e.body}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// OVERVIEW
+// ═══════════════════════════════════════════════════
+function renderOverview() {
+  const today = new Date().toISOString().split('T')[0];
+  const activeTodos = state.todos.filter(t=>!t.done).length;
+  const doneTodos = state.todos.filter(t=>t.done).length;
+  const income = state.transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expenses = state.transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const water = state.water[today]||0;
+  const todayMood = [...state.moodLog].reverse().find(m=>m.date===today);
+  const stats = document.getElementById('overview-stats');
+  if(stats) stats.innerHTML = `
+    <div class="stat-box"><div class="s-label">Balance</div><div class="s-val" style="color:${income-expenses>=0?'var(--success)':'var(--danger)'}">${fmtCur(income-expenses, state.currency)}</div></div>
+    <div class="stat-box"><div class="s-label">Tasks Left</div><div class="s-val">${activeTodos}</div></div>
+    <div class="stat-box"><div class="s-label">Water Today</div><div class="s-val" style="color:var(--accent2)">${water}/8 💧</div></div>
+    <div class="stat-box"><div class="s-label">Mood</div><div class="s-val">${todayMood?todayMood.emoji:'—'}</div></div>
+  `;
+  // Today's todos
+  const ov = document.getElementById('ov-todos');
+  if(ov) {
+    const urgent = state.todos.filter(t=>!t.done).slice(0,5);
+    ov.innerHTML = urgent.length ? urgent.map(t=>`
+      <div class="row" style="gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div class="priority-dot p-${t.priority}"></div>
+        <div style="font-size:13px;flex:1">${t.title}</div>
+        ${t.deadline?`<span class="muted" style="font-size:10px">${new Date(t.deadline).toLocaleDateString()}</span>`:''}
+      </div>`).join('') : '<div class="muted" style="text-align:center;padding:20px">All done! 🎉</div>';
+  }
+  // Budget
+  const ob = document.getElementById('ov-budget');
+  if(ob) {
+    const cur = state.currency;
+    ob.innerHTML = `
+      <div class="row-between" style="margin-bottom:8px">
+        <span class="muted" style="font-size:12px">Income</span><span class="mono" style="color:var(--success);font-size:13px">+${fmtCur(income,cur)}</span>
+      </div>
+      <div class="row-between" style="margin-bottom:8px">
+        <span class="muted" style="font-size:12px">Expenses</span><span class="mono" style="color:var(--danger);font-size:13px">-${fmtCur(expenses,cur)}</span>
+      </div>
+      <div class="row-between">
+        <span class="muted" style="font-size:12px">Balance</span><span class="mono" style="font-size:14px;font-weight:500;color:${income-expenses>=0?'var(--success)':'var(--danger)'}">${fmtCur(income-expenses,cur)}</span>
+      </div>`;
+  }
+  // Habits
+  const oh = document.getElementById('ov-habits');
+  if(oh) {
+    const days = [];
+    const t = new Date();
+    for(let i=6;i>=0;i--) { const d=new Date(t); d.setDate(d.getDate()-i); days.push(d.toISOString().split('T')[0]); }
+    const weekDots = state.habits.slice(0,6).map(h=>`
+      <div class="row" style="gap:6px;padding:4px 0">
+        <span style="font-size:14px">${h.icon}</span>
+        <span style="font-size:12px;flex:1">${h.name}</span>
+        <div class="row" style="gap:3px">${days.map(d=>`<div style="width:16px;height:16px;border-radius:3px;background:${state.habitLog[h.id+'_'+d]?'var(--accent)':'var(--bg4)'}"></div>`).join('')}</div>
+      </div>`).join('');
+    oh.innerHTML = weekDots || '<div class="empty-state">No habits tracked</div>';
+  }
+  renderActiveTimer();
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+function initApp() {
+  // Set today's date on date fields
+  const today = new Date().toISOString().split('T')[0];
+  ['b-date','jnl-date'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=today; });
+
+  renderBudgetStats();
+  renderTransactions();
+  renderCatBreakdown();
+  renderTodos();
+  renderRoutine();
+  renderTimerLog();
+  restoreTimer();
+  renderHabits();
+  renderProjects();
+  renderFiles();
+  renderWellness();
+  renderPomoSessions();
+  renderJournal();
+  renderOverview();
+  checkNotifications();
+  updatePomoDisplay();
+
+  // Handle hash nav
+  const hash = window.location.hash.replace('#','');
+  const pages = ['overview','budget','todos','routine','timer','habits','projects','wellness','pomodoro','journal'];
+  if(pages.includes(hash)) showPage(hash);
+}
+</script>
+</body>
+</html>
